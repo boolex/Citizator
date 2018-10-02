@@ -43,11 +43,12 @@ namespace Citizator
             //).Get();
 
             //"locationbias" : circle:500@49.3990371,27.0538333
-            //var placesClient = new NearbyPlacesSearch(
-            //    key: key,
-            //    location: "49.3990371,27.0538333",
-            //    radius: 500
-            //    );
+            var placesClient = new NearbyPlacesSearch(
+                key: key,
+                location: string.Format("{0},{1}", pd.Result["result"]["geometry"]["location"]["lat"], pd.Result["result"]["geometry"]["location"]["lng"]),
+                radius: 100
+                );
+            var pl = placesClient.Result;
 
         }
 
