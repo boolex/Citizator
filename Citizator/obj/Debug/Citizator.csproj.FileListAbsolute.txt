@@ -13,3 +13,11 @@ C:\Projects\Citizator\Citizator\bin\Debug\Newtonsoft.Json.xml
 C:\Projects\Citizator\Citizator\obj\Debug\Citizator.csprojResolveAssemblyReference.cache
 C:\Projects\Citizator\Citizator\bin\Debug\Citizator.mdf
 C:\Projects\Citizator\Citizator\bin\Debug\Citizator_log.ldf
+C:\Users\VOAL\git\Citizator\Citizator\bin\Debug\Citizator.exe.config
+C:\Users\VOAL\git\Citizator\Citizator\bin\Debug\Citizator.exe
+C:\Users\VOAL\git\Citizator\Citizator\bin\Debug\Citizator.pdb
+C:\Users\VOAL\git\Citizator\Citizator\bin\Debug\Newtonsoft.Json.dll
+C:\Users\VOAL\git\Citizator\Citizator\bin\Debug\Newtonsoft.Json.xml
+C:\Users\VOAL\git\Citizator\Citizator\obj\Debug\Citizator.exe
+C:\Users\VOAL\git\Citizator\Citizator\obj\Debug\Citizator.pdb
+C:\Users\VOAL\git\Citizator\Citizator\obj\Debug\Citizator.csprojResolveAssemblyReference.cache

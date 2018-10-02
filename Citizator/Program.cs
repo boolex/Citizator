@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
 using System.Net;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json.Linq;
 namespace Citizator
 {
-    using Scenarios;
     using System.Collections.Generic;
-    using Citizator.Model;
+    using Model;
     using System.Data.SqlClient;
     class Program
     {
@@ -77,31 +78,33 @@ namespace Citizator
                 {
                     connection.Open();
                     var cmd = string.Format(
-                    @"if(exist(select 1 from [Request] where url = '{0}')
+                    @"if(exists(select 1 from [Request] where url = '{0}'))
                     begin
-                        begin tran
-                        insert into [dbo].[Request](url, response, duration)
-                            select '{0}', '{1}', {2}
-                        declare @id int
-                        set @id = Ident_Current('Request')
-                        insert into [dbo].[RequestHistory](requestid, issued)
+                         insert into [dbo].[RequestHistory](requestid, issued)
                         select
-                           @id, '{3}'
-                        commit tran
-                    end
-                    else
-                    begin
-                        insert into [dbo].[RequestHistory](requestid, issued)
-                        select
-                           r.id, '{3}'
+                           r.id, '{2}'
                         from
                             [dbo].[Request] r
                         where
                             r.[url] = '{0}'
-                    end", Url, res, (int)((DateTime.Now-start).TotalMilliseconds), start.ToString("yyyy-MM-dd hh:mm:ss"));
+                    end
+                    else
+                    begin
+                       begin tran
+                        insert into [dbo].[Request](url, response, duration)
+                            select '{0}', @response, {1}
+                        declare @id int
+                        set @id = Ident_Current('Request')
+                        insert into [dbo].[RequestHistory](requestid, issued)
+                        select
+                           @id, '{2}'
+                        commit tran
+                    end", Url.Replace(api,"<GoogleApiKey>"), (int)((DateTime.Now - start).TotalMilliseconds), start.ToString("yyyy-MM-dd hh:mm:ss"));
                     using (var command = new SqlCommand(cmd, connection))
                     {
-                        command.ExecuteNonQuery();
+                        SqlParameter param = command.Parameters.Add("@response", SqlDbType.VarBinary);
+                        param.Value = Encoding.UTF32.GetBytes(res);
+                        var c = command.ExecuteNonQuery();
                     }
                 }
 
@@ -142,15 +145,15 @@ namespace Citizator
                         select response from [dbo].[Request] where id = @id 
                     end
 
-                    ", Url, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+                    ", Url.Replace(api, "<GoogleApiKey>"), DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
                     using (var command = new SqlCommand(cmd, connection))
                     {
-                        var res = command.ExecuteScalar();
-                        if (res == null || res == DBNull.Value)
+                        byte[] res = (byte[])command.ExecuteScalar();
+                        if (res == null)
                         {
                             return null;
                         }
-                        return JObject.Parse(res.ToString());
+                        return JObject.Parse(Encoding.UTF32.GetString(res));
                     }
                 }
             }
