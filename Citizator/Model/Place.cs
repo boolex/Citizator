@@ -11,14 +11,15 @@ namespace Citizator.Model
         {
             this.soruce = soruce;
         }
-        public string name{get { return soruce["name"].ToString(); }}
+        public string name { get { return soruce["name"].ToString(); } }
         public string place_id { get { return soruce["place_id"].ToString(); } }
         public string id { get { return soruce["id"].ToString(); } }
         public string reference { get { return soruce["reference"].ToString(); } }
         public string scope { get { return soruce["scope"].ToString(); } }
         public string icon { get { return soruce["icon"].ToString(); } }
         public string vicinity { get { return soruce["vicinity"].ToString(); } }
-        public IEnumerable<string> types { get { return soruce["vicinity"].Select(x=>x.ToString()); } }
+        public IEnumerable<string> types { get { return soruce["vicinity"].Select(x => x.ToString()); } }
+        public Geometry geometry { get { return new Geometry(JObject.Parse(soruce["geometry"].ToString())); } }
     }
 
     public class Geometry
@@ -27,6 +28,31 @@ namespace Citizator.Model
         public Geometry(JObject source)
         {
             this.source = source;
+        }
+        private JObject location
+        {
+            get { return JObject.Parse(source["location"].ToString()); }
+        }
+        public string lat
+        {
+            get
+            {
+                return location["lat"].ToString().Replace(",", ".");
+            }
+        }
+        public string lng
+        {
+            get
+            {
+                return location["lng"].ToString().Replace(",", ".");
+            }
+        }
+        public string formattedLocation
+        {
+            get
+            {
+                return string.Format("{0},{1}", lat, lng);
+            }
         }
         /*
          "geometry": {
