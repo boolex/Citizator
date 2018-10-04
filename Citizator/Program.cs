@@ -22,7 +22,8 @@ namespace Citizator
                 fields: new List<PlaceFields>() { 
                    PlaceFields.formatted_address, 
                    PlaceFields.place_id,              
-                });
+                },
+                language: "uk-UA,ua;q=0.8");
             var p = place.PlaceId;
 
             var pd = new PlaceDetails(
@@ -47,9 +48,11 @@ namespace Citizator
             var placesClient = new NearbyPlacesSearch(
                 key: key,
                 location: locPlace.geometry.formattedLocation,
-                radius: 100
+                radius: 1000,
+                language: "uk-UA,ua;q=0.8"
                 );
             var pl = placesClient.Result;
+            var x = placesClient.Result["results"].Select(y => new Place(JObject.Parse(y.ToString())));
             /*
              * "{\r\n  \"html_attributions\": [],\r\n  \"results\": [\r\n    {\r\n      \"geometry\": {\r\n        \"location\": {\r\n          \"lat\": 49.422983,\r\n          \"lng\": 26.987133099999991\r\n        },\r\n        \"viewport\": {\r\n          \"northeast\": {\r\n            \"lat\": 49.4638529,\r\n            \"lng\": 27.093279\r\n          },\r\n          \"southwest\": {\r\n            \"lat\": 49.357251,\r\n            \"lng\": 26.8972381\r\n          }\r\n        }\r\n      },\r\n      \"icon\": \"https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png\",\r\n      \"id\": \"4078be90d885157845d101a8b6895e0572720076\",\r\n      \"name\": \"Khmelnytskyi\",\r\n      \"photos\": [\r\n        {\r\n          \"height\": 431,\r\n          \"html_attributions\": [\r\n            \"<a href=\\\"https://maps.google.com/maps/contrib/107447613389815807970/photos\\\">РњР°СЂРёРЅР° РџСѓСЃС‚РѕРІР°</a>\"\r\n          ],\r\n          \"photo_reference\": \"CmRaAAAA6eGpehwOx7y3QHFws6vNPmoV3rynBXnfIkX_qGkbjs5mve2OWVcn
 JH1CnMAySF5c1FNoO9kYnusnkc7Eo6yMhnOJD2MdZlZJxN5k4aHpEnAqt8bNxTzHSzcyVcH1DR-MEhBLDkpprQJkGA9ES1muyGGfGhQFrRRr6ny5mUbQFuScafb83_IATw\",\r\n          \"width\": 588\r\n        }\r\n      ],\r\n      \"place_id\": \"ChIJixe7REMGMkcRZMnZJDsL89k\",\r\n      \"reference\": \"ChIJixe7REMGMkcRZMnZJDsL89k\",\r\n      \"scope\": \"GOOGLE\",\r\n      \"types\": [\r\n        \"locality\",\r\n        \"political\"\r\n      ],\r\n      \"vicinity\": \"Khmelnytskyi\"\r\n    },\r\n    {\r\n      \"geometry\": {\r\n        \"location\": {\r\n          \"lat\": 49.4106608,\r\n          \"lng\": 26.9547318\r\n        },\r\n        \"viewport\": {\r\n          \"northeast\": {\r\n            \"lat\": 49.4120066302915,\r\n            \"lng\": 26.9559897302915\r\n          },\r\n          \"southwest\": {\r\n            \"lat\": 49.4093086697085,\r\n            \"lng\": 26.9532917697085\r\n          }\r\n        }\r\n      },\r\n      \"icon\": \"https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png\",\r\n      \"id\": \"e4d
@@ -76,13 +79,16 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
         {
             protected readonly string api;
             protected readonly string key;
+            protected readonly string language;
             protected readonly string format = "json";
             public GoogleApiRequest(
                 string api,
-                string key)
+                string key,
+                string language = "en-US,en;q=0.8")
             {
                 this.api = api;
                 this.key = key;
+                this.language = language;
             }
             private JObject result;
             public virtual JObject Result
@@ -93,6 +99,9 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
             {
                 DateTime start = DateTime.Now;
                 var r = new WebClient();
+                r.Encoding = Encoding.UTF32;
+                r.Headers.Add(HttpRequestHeader.AcceptLanguage, language);
+                r.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                 var res = r.DownloadString(new Uri(Url));
 
                 using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["citizator"].ConnectionString))
@@ -151,6 +160,7 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
             }
             private JObject GetFromCache()
             {
+                return null;
                 using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["citizator"].ConnectionString))
                 {
                     connection.Open();
@@ -183,8 +193,8 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
         {
             private readonly string place;
             private readonly List<PlaceFields> fields;
-            public GooglePlace(string key, string place, List<PlaceFields> fields)
-                : base(api: "place", key: key)
+            public GooglePlace(string key, string place, List<PlaceFields> fields, string language)
+                : base(api: "place", key: key, language: language)
             {
                 this.place = place;
                 this.fields = fields;
@@ -220,8 +230,9 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
             public NearbyPlacesSearch(
                 string key,
                 string location,
-                int radius)
-                : base(api: "place", key: key)
+                int radius,
+                string language)
+                : base(api: "place", key: key, language: language)
             {
                 this.location = location;
                 this.radius = radius;
