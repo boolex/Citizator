@@ -52,6 +52,7 @@ namespace Citizator
                 language: "uk-UA,ua;q=0.8"
                 );
             var pl = placesClient.Result;
+            //use next-page-token!
             var x = placesClient.Result["results"].Select(y => new Place(JObject.Parse(y.ToString())));
             /*
              * "{\r\n  \"html_attributions\": [],\r\n  \"results\": [\r\n    {\r\n      \"geometry\": {\r\n        \"location\": {\r\n          \"lat\": 49.422983,\r\n          \"lng\": 26.987133099999991\r\n        },\r\n        \"viewport\": {\r\n          \"northeast\": {\r\n            \"lat\": 49.4638529,\r\n            \"lng\": 27.093279\r\n          },\r\n          \"southwest\": {\r\n            \"lat\": 49.357251,\r\n            \"lng\": 26.8972381\r\n          }\r\n        }\r\n      },\r\n      \"icon\": \"https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png\",\r\n      \"id\": \"4078be90d885157845d101a8b6895e0572720076\",\r\n      \"name\": \"Khmelnytskyi\",\r\n      \"photos\": [\r\n        {\r\n          \"height\": 431,\r\n          \"html_attributions\": [\r\n            \"<a href=\\\"https://maps.google.com/maps/contrib/107447613389815807970/photos\\\">РњР°СЂРёРЅР° РџСѓСЃС‚РѕРІР°</a>\"\r\n          ],\r\n          \"photo_reference\": \"CmRaAAAA6eGpehwOx7y3QHFws6vNPmoV3rynBXnfIkX_qGkbjs5mve2OWVcn
@@ -99,7 +100,7 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
             {
                 DateTime start = DateTime.Now;
                 var r = new WebClient();
-                r.Encoding = Encoding.UTF32;
+                r.Encoding = Encoding.UTF8;
                 r.Headers.Add(HttpRequestHeader.AcceptLanguage, language);
                 r.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                 var res = r.DownloadString(new Uri(Url));
@@ -133,7 +134,7 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
                     using (var command = new SqlCommand(cmd, connection))
                     {
                         SqlParameter param = command.Parameters.Add("@response", SqlDbType.VarBinary);
-                        param.Value = Encoding.UTF32.GetBytes(res);
+                        param.Value = Encoding.UTF8.GetBytes(res);
                         var c = command.ExecuteNonQuery();
                     }
                 }
@@ -160,7 +161,6 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
             }
             private JObject GetFromCache()
             {
-                return null;
                 using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["citizator"].ConnectionString))
                 {
                     connection.Open();
@@ -184,7 +184,7 @@ lat\": 49.395893,\r\n            \"lng\": 26.9341851\r\n          }\r\n        }
                         {
                             return null;
                         }
-                        return JObject.Parse(Encoding.UTF32.GetString(res));
+                        return JObject.Parse(Encoding.UTF8.GetString(res));
                     }
                 }
             }
